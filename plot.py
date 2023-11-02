@@ -1,18 +1,24 @@
-def stock_plot(stock_str, df):
-    fig = plt.figure(figsize=(15,10))
-    st = fig.suptitle(stock_str, fontsize=20)
-    st.set_y(0.92)
+import matplotlib.pyplot as plt
+import numpy as np
+plt.style.use('seaborn')
+
+
+def split_plot(df_train, df_val, df_test, param = str, title = None, y_lbl = None):
+
+    fig = plt.figure(figsize=(15,12))
+    st = fig.suptitle("Data Separation", fontsize=20)
+    st.set_y(0.95)
 
     ax1 = fig.add_subplot(211)
-    ax1.plot(df['Close'], label='Close Price')
-    ax1.set_xticks(range(0, df.shape[0], 1464))
-    #ax1.set_xticklabels(df['DateTime'].dt.strftime('%Y-%m-%d').loc[::1464])
-    ax1.set_ylabel('Close Price', fontsize=18)
-    ax1.legend(loc="upper left", fontsize=12)
+    ax1.plot(np.arange(df_train.shape[0]), df_train[param], label = 'Training data')
 
-    ax2 = fig.add_subplot(212)
-    ax2.plot(df['Volume'], label='Volume')
-    ax2.set_xticks(range(0, df.shape[0], 1464))
-    #ax2.set_xticklabels(df['DateTime'].dt.strftime('%Y-%m-%d').loc[::1464])
-    ax2.set_ylabel('Volume', fontsize=18)
-    ax2.legend(loc="upper left", fontsize=12)
+    ax1.plot(np.arange(df_train.shape[0],
+                    df_train.shape[0]+df_val.shape[0]), df_val[param], label = 'Validation data')
+
+    ax1.plot(np.arange(df_train.shape[0]+df_val.shape[0],
+                    df_train.shape[0]+df_val.shape[0]+df_test.shape[0]), df_test[param], label = 'Test data')
+
+    ax1.set_xlabel('Date')
+    ax1.set_ylabel(y_lbl)
+    ax1.set_title(title, fontsize=16)
+    ax1.legend(loc="best", fontsize=12)
