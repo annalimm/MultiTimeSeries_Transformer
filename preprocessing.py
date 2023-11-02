@@ -7,7 +7,7 @@ def df_split(df):
     df_val = df[train_samples: train_samples + val_samples]
     df_test = df[train_samples + val_samples:]
 
-    # we csn remove date column, because the time information is now embedded in a different form  
+    # we can remove date column, because the time information is now embedded in a different form  
     df_train = df_train.loc[:, df_train.columns != 'Time']
     df_val = df_val.loc[:, df_val.columns != 'Time']
     df_test = df_test.loc[:, df_test.columns != 'Time']
@@ -15,4 +15,5 @@ def df_split(df):
     print('Train df shape: {}'.format(df_train.shape))
     print('Val df shape: {}'.format(df_val.shape))
     print('Test df shape: {}'.format(df_test.shape))
+    
     return df_train, df_val, df_test
