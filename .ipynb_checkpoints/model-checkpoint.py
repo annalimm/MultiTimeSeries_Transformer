@@ -137,3 +137,26 @@ def model_withTimeEmb(num_features):
     model = Model(inputs=in_seq, outputs=out)
     model.compile(loss='mse', optimizer='adam', metrics=['mae', 'mape'])
     return model
+
+
+def model_withoutTimeEmb(num_features):
+    # a hyperparameter, try different numbers of att lay
+    attn_layer1 = TransformerEncoder(d_k, d_v, n_heads, ff_dim)
+    attn_layer2 = TransformerEncoder(d_k, d_v, n_heads, ff_dim)
+    attn_layer3 = TransformerEncoder(d_k, d_v, n_heads, ff_dim)
+
+    '''Construct model'''
+    in_seq = Input(shape=(seq_len, num_features))
+    x = attn_layer1((in_seq, in_seq, in_seq))
+    x = attn_layer2((x, x, x))
+    x = attn_layer3((x, x, x))
+    x = GlobalAveragePooling1D(data_format='channels_first')(x)
+    x = Dropout(0.1)(x)
+    # x = Dense(64, activation='relu')(x)
+    x = Dense(64, activation='elu')(x)
+    x = Dropout(0.1)(x)
+    out = Dense(1, activation='linear')(x) # regression head
+
+    model = Model(inputs=in_seq, outputs=out)
+    model.compile(loss='mse', optimizer='adam', metrics=['mae', 'mape'])
+    return model
