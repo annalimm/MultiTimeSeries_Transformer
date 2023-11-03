@@ -1,4 +1,5 @@
 from tensorflow.keras.layers import Layer
+import embedding  
 
 
 class SingleAttention(Layer):
@@ -85,22 +86,54 @@ class TransformerEncoder(Layer):
         self.ff_normalize = LayerNormalization(input_shape=input_shape, epsilon=1e-6)
 
     def call(self, inputs): # inputs = (in_seq, in_seq, in_seq)
-    attn_layer = self.attn_multi(inputs)
-    attn_layer = self.attn_dropout(attn_layer)
-    attn_layer = self.attn_normalize(inputs[0] + attn_layer)
+        attn_layer = self.attn_multi(inputs)
+        attn_layer = self.attn_dropout(attn_layer)
+        attn_layer = self.attn_normalize(inputs[0] + attn_layer)
 
-    ff_layer = self.ff_conv1D_1(attn_layer)
-    ff_layer = self.ff_conv1D_2(ff_layer)
-    ff_layer = self.ff_dropout(ff_layer)
-    ff_layer = self.ff_normalize(inputs[0] + ff_layer)
-    return ff_layer
+        ff_layer = self.ff_conv1D_1(attn_layer)
+        ff_layer = self.ff_conv1D_2(ff_layer)
+        ff_layer = self.ff_dropout(ff_layer)
+        ff_layer = self.ff_normalize(inputs[0] + ff_layer)
+        return ff_layer
 
     def get_config(self): # Needed for saving and loading model with custom layer
-    config = super().get_config().copy()
-    config.update({'d_k': self.d_k,
-                   'd_v': self.d_v,
-                   'n_heads': self.n_heads,
-                   'ff_dim': self.ff_dim,
-                   'attn_heads': self.attn_heads,
-                   'dropout_rate': self.dropout_rate})
-    return config
+        config = super().get_config().copy()
+        config.update({'d_k': self.d_k,
+                       'd_v': self.d_v,
+                       'n_heads': self.n_heads,
+                       'ff_dim': self.ff_dim,
+                       'attn_heads': self.attn_heads,
+                       'dropout_rate': self.dropout_rate})
+        return config
+
+
+
+def model_withTimeEmb(num_features):
+    '''Initialize time and transformer layers'''
+    time_embedding = embedding.Time2Vector(seq_len)
+    attn_layer1 = TransformerEncoder(d_k, d_v, n_heads, ff_dim)
+    attn_layer2 = TransformerEncoder(d_k, d_v, n_heads, ff_dim)
+    attn_layer3 = TransformerEncoder(d_k, d_v, n_heads, ff_dim)
+    attn_layer4 = TransformerEncoder(d_k, d_v, n_heads, ff_dim)
+    attn_layer5 = TransformerEncoder(d_k, d_v, n_heads, ff_dim)
+    
+    '''Construct model'''
+    in_seq = Input(shape=(seq_len, num_features))
+    x = time_embedding(in_seq)
+    x = Concatenate(axis=-1)([in_seq, x])
+    
+    x = attn_layer1((in_seq, in_seq, in_seq))
+    x = attn_layer2((x, x, x))
+    x = attn_layer3((x, x, x))
+    
+    
+    x = GlobalAveragePooling1D(data_format='channels_first')(x)
+    x = Dropout(0.1)(x)
+    # x = Dense(64, activation='relu')(x)
+    x = Dense(64, activation='elu')(x)
+    x = Dropout(0.1)(x)
+    out = Dense(1, activation='linear')(x) # regression head
+
+    model = Model(inputs=in_seq, outputs=out)
+    model.compile(loss='mse', optimizer='adam', metrics=['mae', 'mape'])
+    return model

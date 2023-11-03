@@ -22,3 +22,5 @@ def split_plot(df_train, df_val, df_test, param = str, title = None, y_lbl = Non
     ax1.set_ylabel(y_lbl)
     ax1.set_title(title, fontsize=16)
     ax1.legend(loc="best", fontsize=12)
+
+    
