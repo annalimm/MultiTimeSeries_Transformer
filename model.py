@@ -160,3 +160,4 @@ def model_withoutTimeEmb(num_features):
     model = Model(inputs=in_seq, outputs=out)
     model.compile(loss='mse', optimizer='adam', metrics=['mae', 'mape'])
     return model
+

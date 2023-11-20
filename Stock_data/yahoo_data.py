@@ -1,7 +1,8 @@
 import pandas as pd
 from yahoofinancials import YahooFinancials
 import matplotlib.pyplot as plt
-
+import seaborn as sns
+sns.set(style="whitegrid")
 
 def get_historical_stock_data(ticker: str, start_date, end_date):
     try:
@@ -40,6 +41,9 @@ def fetch_tickers_data(tickers: list, start_date, end_date) -> pd.DataFrame:
 
 
 def stock_plot(stock_str, df):
+    
+    sns.set(style="whitegrid")
+    
     fig = plt.figure(figsize=(15,10))
     st = fig.suptitle(stock_str, fontsize=20)
     st.set_y(0.92)
@@ -57,3 +61,5 @@ def stock_plot(stock_str, df):
     #ax2.set_xticklabels(df['DateTime'].dt.strftime('%Y-%m-%d').loc[::1464])
     ax2.set_ylabel('Volume', fontsize=18)
     ax2.legend(loc="upper left", fontsize=12)
+    
+    plt.legend()

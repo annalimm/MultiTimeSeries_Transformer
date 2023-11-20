@@ -32,7 +32,7 @@ def df_split(df):
     # return df_train, df_val, df_test, arr_train, arr_val, arr_test
     
     
-def chunks(seq_len, df_train, df_val, df_test, target_col):
+def chunks(seq_len, df_train, df_val, df_test, target_col, step, n_pred):
 
     df_train = df_train.values
     df_val = df_val.values
@@ -41,24 +41,24 @@ def chunks(seq_len, df_train, df_val, df_test, target_col):
     X_train, y_train = [], []
     # we use all colums for training. split data by subsets with n = "seq_len" rows(timesteps) and move by step = 1 
     # we use n = seq_len-1 parametrs for training and i+1-th parametr as a target (could be optional)
-    for i in range(seq_len, len(df_train)):
+    for i in range(seq_len, len(df_train), step):
         X_train.append(df_train[i-seq_len:i])
         # we use only target_col columns as a target
-        y_train.append(df_train[:, target_col][i])
+        y_train.append(df_train[i:i+n_pred, target_col])
     X_train, y_train = np.array(X_train), np.array(y_train)
     
     
     X_val, y_val = [], []
-    for i in range(seq_len, len(df_val)):
+    for i in range(seq_len, len(df_val), step):
         X_val.append(df_val[i-seq_len:i])
-        y_val.append(df_val[:, target_col][i])
+        y_val.append(df_val[i:i+n_pred, target_col])
     X_val, y_val = np.array(X_val), np.array(y_val)
 
 
     X_test, y_test = [], []
-    for i in range(seq_len, len(df_test)):
+    for i in range(seq_len, len(df_test), step):
         X_test.append(df_test[i-seq_len:i])
-        y_test.append(df_test[:, target_col][i])
+        y_test.append(df_test[i:i+n_pred, target_col])
     X_test, y_test = np.array(X_test), np.array(y_test)
 
     print("Train chunks set shape: ", X_train.shape, y_train.shape)
